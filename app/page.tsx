@@ -1,66 +1,64 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import PostCard from "@/components/PostCard";
+
+type Post = {
+  id: number;
+  author: string;
+  handle: string;
+  content: string;
+  likes: number;
+  time: string;
+};
+const posts: Post[] = [
+  {
+    id: 1,
+    author: "Alice Martin",
+    handle: "@alice_dev",
+    content: "Je viens de déployer mon premier projet Next.js 🚀",
+    likes: 24,
+    time: "Il y a 2h",
+  },
+  {
+    id: 2,
+    author: "Bob Nguyen",
+    handle: "@bob_codes",
+    content:
+      "Les Server Components changent vraiment la façon de penser le rendu !",
+    likes: 18,
+    time: "Il y a 4h",
+  },
+  {
+    id: 3,
+    author: "Clara Dubois",
+    handle: "@clara_ui",
+    content:
+      "Tailwind ou CSS classique avec Next.js ? Curieuse des pratiquesde votre équipe !",
+    likes: 41,
+    time: "Il y a 6h",
+  },
+];
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        padding: "0 4rem",
+      }}
+    >
+      <h1>LinkUp</h1>
+      {posts.map((post) => (
+        <PostCard
+          key={post.id}
+          id={post.id}
+          author={post.author}
+          handle={post.handle}
+          content={post.content}
+          likes={post.likes}
+          time={post.time}
         />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      ))}
     </div>
   );
 }
