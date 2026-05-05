@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type User = {
   id: number;
   name: string;
@@ -41,7 +43,9 @@ export default async function Explore() {
           }}
         >
           <div style={{ display: "flex", flexDirection: "row", gap: ".75rem" }}>
-            <p style={{ fontWeight: "bold" }}>{user.name}</p>
+            <Link style={{color: "#6d28d9", fontWeight: 500, textDecoration: "none"}} href={`/profile/${user.id}`}>
+              {user.name}
+            </Link>
             <p>@{user.username}</p>
           </div>
           <p>

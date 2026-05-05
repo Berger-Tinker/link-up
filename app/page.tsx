@@ -1,4 +1,4 @@
-import PostCard from "@/components/PostCard";
+import Link from "next/link";
 
 type Post = {
   id: number;
@@ -14,7 +14,7 @@ type User = {
 };
 
 async function getPostsWithUsers() {
-  await new Promise(resolve => setTimeout(resolve, 2000))
+  await new Promise(resolve => setTimeout(resolve, 1000))
   // Lancer les deux fetch en parallèle — plus rapide qu’en série
   const [postsRes, usersRes] = await Promise.all([
     fetch("https://jsonplaceholder.typicode.com/posts?_limit=10", {
@@ -59,7 +59,7 @@ export default async function HomePage() {
           <span style={{ color: "#6b7280", marginLeft: "0.5rem" }}>
             {post.handle}
           </span>
-          <p style={{ fontWeight: "500", margin: "0.5rem 0" }}>{post.title}</p>
+          <Link href={`/post/${post.id}`} style={{color: "#6d28d9", fontWeight: "500", margin: "0.5rem 0", display: "block", cursor: "pointer"}}>{post.title}</Link>
           <p style={{ color: "#6b7280", margin: 0 }}>{post.body}</p>
         </article>
       ))}
