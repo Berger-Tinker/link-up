@@ -2,62 +2,66 @@ import PostCard from "@/components/PostCard";
 
 type Post = {
   id: number;
-  author: string;
-  handle: string;
-  content: string;
-  likes: number;
-  time: string;
+  userId: number;
+  title: string;
+  body: string;
 };
-const posts: Post[] = [
-  {
-    id: 1,
-    author: "Alice Martin",
-    handle: "@alice_dev",
-    content: "Je viens de déployer mon premier projet Next.js 🚀",
-    likes: 24,
-    time: "Il y a 2h",
-  },
-  {
-    id: 2,
-    author: "Bob Nguyen",
-    handle: "@bob_codes",
-    content:
-      "Les Server Components changent vraiment la façon de penser le rendu !",
-    likes: 18,
-    time: "Il y a 4h",
-  },
-  {
-    id: 3,
-    author: "Clara Dubois",
-    handle: "@clara_ui",
-    content:
-      "Tailwind ou CSS classique avec Next.js ? Curieuse des pratiquesde votre équipe !",
-    likes: 41,
-    time: "Il y a 6h",
-  },
-];
 
-export default function Home() {
+type User = {
+  id: number;
+  name: string;
+  username: string;
+};
+
+async function getPostsWithUsers() {
+  await new Promise(resolve => setTimeout(resolve, 2000))
+  // Lancer les deux fetch en parallèle — plus rapide qu’en série
+  const [postsRes, usersRes] = await Promise.all([
+    fetch("https://jsonplaceholder.typicode.com/posts?_limit=10", {
+      next: { revalidate: 60 },
+    }),
+    fetch("https://jsonplaceholder.typicode.com/users", {
+      next: { revalidate: 300 },
+    }),
+  ]);
+  if (!postsRes.ok || !usersRes.ok)
+    throw new Error("Erreur lors du chargement des données");
+  const [posts, users]: [Post[], User[]] = await Promise.all([
+    postsRes.json(),
+    usersRes.json(),
+  ]);
+  // Créer un dictionnaire userId → user pour accès rapide
+  const usersById = Object.fromEntries(users.map((u) => [u.id, u]));
+  return posts.map((post) => ({
+    ...post,
+    author: usersById[post.userId]?.name ?? "Inconnu",
+    handle: "@" + (usersById[post.userId]?.username ?? "inconnu"),
+  }));
+}
+
+export default async function HomePage() {
+  const posts = await getPostsWithUsers();
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "1rem",
-        padding: "0 4rem",
-      }}
-    >
-      <h1>LinkUp</h1>
+    <div className="page-container">
+      <h1>Fil d’actualité</h1>
       {posts.map((post) => (
-        <PostCard
+        <article
           key={post.id}
-          id={post.id}
-          author={post.author}
-          handle={post.handle}
-          content={post.content}
-          likes={post.likes}
-          time={post.time}
-        />
+          style={{
+            background: "#fff",
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            padding: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
+          <strong>{post.author}</strong>
+          <span style={{ color: "#6b7280", marginLeft: "0.5rem" }}>
+            {post.handle}
+          </span>
+          <p style={{ fontWeight: "500", margin: "0.5rem 0" }}>{post.title}</p>
+          <p style={{ color: "#6b7280", margin: 0 }}>{post.body}</p>
+        </article>
       ))}
     </div>
   );

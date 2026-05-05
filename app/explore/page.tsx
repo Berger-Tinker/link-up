@@ -1,35 +1,25 @@
-const suggestedUsers = [
-  {
-    id: 1,
-    name: "David Chen",
-    handle: "@david_ts",
-    bio: "TypeScript fanatic 💙",
-    followers: 1240,
-  },
-  {
-    id: 2,
-    name: "Eva Rossi",
-    handle: "@eva_design",
-    bio: "UI/UX · CSS lover 🎨",
-    followers: 3800,
-  },
-  {
-    id: 3,
-    name: "Frank Müller",
-    handle: "@frank_devops",
-    bio: "DevOps · K8s · CI/CD 🛠️ ",
-    followers: 920,
-  },
-  {
-    id: 4,
-    name: "Giulia Romano",
-    handle: "@giulia_ml",
-    bio: "ML · Python 🤖",
-    followers: 5600,
-  },
-];
+type User = {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  company: { name: string };
+  address: { city: string };
+};
 
-export default function Explore() {
+async function getUsers(): Promise<User[]> {
+  const res = await fetch(
+    "https://jsonplaceholder.typicode.com/users?_limit=10",
+    { next: { revalidate: 60 } }, // ISR : actualiser toutes les 60 secondes
+  );
+  if (!res.ok) {
+    throw new Error("Impossible de charger les users");
+  }
+  return res.json();
+}
+
+export default async function Explore() {
+  const users = await getUsers();
   return (
     <div
       style={{
@@ -40,8 +30,9 @@ export default function Explore() {
       }}
     >
       <h1>Explore</h1>
-      {suggestedUsers.map((user) => (
+      {users.map((user) => (
         <article
+          key={user.id}
           style={{
             backgroundColor: "white",
             borderRadius: "1rem",
@@ -51,11 +42,13 @@ export default function Explore() {
         >
           <div style={{ display: "flex", flexDirection: "row", gap: ".75rem" }}>
             <p style={{ fontWeight: "bold" }}>{user.name}</p>
-            <p>{user.handle}</p>
+            <p>@{user.username}</p>
           </div>
-          <p>{user.bio}</p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sit,
+            laudantium
+          </p>
           <div style={{ display: "flex", flexDirection: "row", gap: ".75rem" }}>
-            <p>🫃{user.followers.toLocaleString()} followers</p>
             <button>follow</button>
           </div>
         </article>
