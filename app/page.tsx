@@ -1,49 +1,13 @@
 import Link from "next/link";
-
-type Post = {
-  id: number;
-  userId: number;
-  title: string;
-  body: string;
-};
-
-type User = {
-  id: number;
-  name: string;
-  username: string;
-};
-
-async function getPostsWithUsers() {
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  // Lancer les deux fetch en parallèle — plus rapide qu’en série
-  const [postsRes, usersRes] = await Promise.all([
-    fetch("https://jsonplaceholder.typicode.com/posts?_limit=10", {
-      next: { revalidate: 60 },
-    }),
-    fetch("https://jsonplaceholder.typicode.com/users", {
-      next: { revalidate: 300 },
-    }),
-  ]);
-  if (!postsRes.ok || !usersRes.ok)
-    throw new Error("Erreur lors du chargement des données");
-  const [posts, users]: [Post[], User[]] = await Promise.all([
-    postsRes.json(),
-    usersRes.json(),
-  ]);
-  // Créer un dictionnaire userId → user pour accès rapide
-  const usersById = Object.fromEntries(users.map((u) => [u.id, u]));
-  return posts.map((post) => ({
-    ...post,
-    author: usersById[post.userId]?.name ?? "Inconnu",
-    handle: "@" + (usersById[post.userId]?.username ?? "inconnu"),
-  }));
-}
+import { getAllPosts } from "@/lib/store";
+import NewPostForm from "@/components/NewPostForm";
 
 export default async function HomePage() {
-  const posts = await getPostsWithUsers();
+  const posts = await getAllPosts();
   return (
     <div className="page-container">
       <h1>Fil d’actualité</h1>
+      <NewPostForm></NewPostForm>
       {posts.map((post) => (
         <article
           key={post.id}
@@ -59,8 +23,8 @@ export default async function HomePage() {
           <span style={{ color: "#6b7280", marginLeft: "0.5rem" }}>
             {post.handle}
           </span>
-          <Link href={`/post/${post.id}`} style={{color: "#6d28d9", fontWeight: "500", margin: "0.5rem 0", display: "block", cursor: "pointer"}}>{post.title}</Link>
-          <p style={{ color: "#6b7280", margin: 0 }}>{post.body}</p>
+          <Link href={`/post/${post.id}`} style={{color: "#6d28d9", fontWeight: "500", margin: "0.5rem 0", display: "block", cursor: "pointer"}}>{post.createdAt}</Link>
+          <p style={{ color: "#6b7280", margin: 0 }}>{post.content}</p>
         </article>
       ))}
     </div>
